@@ -11,8 +11,6 @@ tags:
 - web
 ---
 
-# fasthttp中的协程池实现
-
 > 协程池可以控制并行度，复用协程。fasthttp 比 net/http 效率高很多倍的重要原因，就是利用了协程池。实现并不复杂，我们可以参考他的设计，写出高性能的应用。
 
 <!-- more -->
@@ -206,7 +204,7 @@ type workerChan struct {
 
 wp.getCh() 返回一个 *workerChan, 可以看到， workerChan 有一个 ch 属性，参数传入的 net.Conn 直接往里面塞。
 
-# break-04
+## break-04
 
 ```golang
 // workerpool.go
