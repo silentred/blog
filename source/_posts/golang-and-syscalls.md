@@ -56,7 +56,7 @@ write(socket, tmp_buf, len);
 ```
 
 借用一张图来说明问题
-![img](resource/image/read-write-syscall.jpg)
+![img](/resource/image/read-write-syscall.jpg)
 
 1. 第一步，`read()`导致上下文切换(context switch)，从用户模式进入内核模式，DMA(Direct memory access) engine 从磁盘中读取内容，存入内核地址buffer。
 2. 第二步，数据从内核buffer拷贝入用户buffer，`read()`返回，上下文切换回用户态。
