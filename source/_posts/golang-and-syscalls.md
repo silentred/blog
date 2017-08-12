@@ -306,3 +306,4 @@ name: close, id: 3
 对比一下结果，可以发现和 strace 是一样的。
 
 [presenter github](https://github.com/lizrice/strace-from-scratch)
+[youtube视频](https://www.youtube.com/watch?v=01w7viEZzXQ&t=1221s)
