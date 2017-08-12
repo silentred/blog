@@ -100,13 +100,37 @@ hello
 100.00    0.000000                    34         3 total
 ```
 
-### 原理
-
-// ptrace
+stace 的实现原理是系统调用 ptrace, 我们来看下 ptrace 是什么。
 
 ## Ptrace
 
+man page 描述如下：
+
+The ptrace() system call provides a means by which one process (the "tracer") may *observe* and *control* the execution of another process (the "tracee"), and examine and change the tracee's memory and registers.  It is primarily used to implement breakpoint debuggingand system call tracing.
+
+简单来说有三大能力:
+
+- 追踪系统调用
+- 读写内存和寄存器
+- 向被追踪程序传递信号
+
 ### 接口
+
+```c
+int ptrace(int request, pid_t pid, caddr_t addr, int data);
+
+request包含:
+PTRACE_ATTACH
+PTRACE_SYSCALL
+PTRACE_PEEKTEXT, PTRACE_PEEKDATA
+等
+```
+
+tracer 使用 `PTRACE_ATTACH` 命令，指定需要追踪的PID。紧接着调用 `PTRACE_SYSCALL`。
+tracee 会一直运行，直到遇到系统调用，内核会停止执行。 此时，tracer 会收到 `SIGTRAP` 信号，tracer 就可以打印内存和寄存器中的信息了。
+
+接着，tracer 继续调用 `PTRACE_SYSCALL`, tracee 继续执行，直到 tracee退出当前的系统调用。
+需要注意的是，这里在进入syscall和退出syscall时，tracer都会察觉。
 
 ## myStrace
 
@@ -150,6 +174,7 @@ func main() {
 	exit := true
 
 	for {
+		// 记得 PTRACE_SYSCALL 会在进入和退出syscall时使 tracee 暂停，所以这里用一个变量控制，RAX的内容只打印一遍
 		if exit {
 			err = syscall.PtraceGetRegs(pid, &regs)
 			if err != nil {
@@ -279,3 +304,5 @@ name: close, id: 3
 ```
 
 对比一下结果，可以发现和 strace 是一样的。
+
+[presenter github](https://github.com/lizrice/strace-from-scratch)
