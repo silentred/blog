@@ -1,5 +1,5 @@
 ---
-title: mysql-multi-col-index
+title: MySQL 多列索引
 date: 2017-08-12 15:47:05
 categories:
 - tech
