@@ -8,7 +8,7 @@ tags:
 - golang
 ---
 
-> gopher con 中的一个视频讲解了如何用golang实现一个简单的strace，本文是基于此演讲整理而来。
+> GopherCon2017 中的一个视频讲解了如何用golang实现一个简单的strace，本文是基于此演讲整理而来。
 
 <!-- more -->
 
