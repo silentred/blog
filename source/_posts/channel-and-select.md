@@ -1,5 +1,5 @@
 ---
-title: Go语言channel与select的原理
+title: Go语言channel与select原理
 date: 2017-08-23 14:25:34
 categories:
 - tech
