@@ -15,7 +15,7 @@ tags:
 
 # channel
 
-第一部分讲述一下 channel 的用法。channel 可以看做一个队列，用于多个goroutine之间的通信，例如下面的例子，一个goroutine发送msg，另一个msg接受消息。channel 分为带缓冲和不带缓冲，我认为差别不是很大，具体请自行google。看一个简答的例子，了解一下channel的使用。
+第一部分讲述一下 channel 的用法。channel 可以看做一个队列，用于多个goroutine之间的通信，例如下面的例子，一个goroutine发送msg，另一个msg接受消息。channel 分为带缓冲和不带缓冲，差别不是很大，具体请自行google。看一个简单的例子，了解一下channel的使用。
 
 ```go
 package main
@@ -26,11 +26,11 @@ func main() {
     // Create a new channel with `make(chan val-type)`.
     // Channels are typed by the values they convey.
     messages := make(chan string)
-    // _Send_ a value into a channel using the `channel <-`
+    // Send a value into a channel using the `channel <-`
     // syntax. Here we send `"ping"`  to the `messages`
     // channel we made above, from a new goroutine.
     go func() { messages <- "ping" }()
-    // The `<-channel` syntax _receives_ a value from the
+    // The `<-channel` syntax receives a value from the
     // channel. Here we'll receive the `"ping"` message
     // we sent above and print it out.
     msg := <-messages
