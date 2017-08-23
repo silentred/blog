@@ -15,14 +15,7 @@ tags:
 
 # channel
 
-第一部分讲述一下 channel 的用法。channel 可以看做一个队列，用于多个goroutine之间的通信，例如下面的例子，一个goroutine发送msg，另一个msg接受消息。channel 分为带缓冲和不带缓冲，我认为差别不是很大，具体请自行google。
-
-channel的功能点：
-1. 队列
-2. 当超过buffer长度时阻塞
-3. 当一端阻塞，可以被另一个端唤醒
-
-我们围绕这3点功能展开，讲讲具体的实现。
+第一部分讲述一下 channel 的用法。channel 可以看做一个队列，用于多个goroutine之间的通信，例如下面的例子，一个goroutine发送msg，另一个msg接受消息。channel 分为带缓冲和不带缓冲，我认为差别不是很大，具体请自行google。看一个简答的例子，了解一下channel的使用。
 
 ```go
 package main
@@ -44,6 +37,13 @@ func main() {
     fmt.Println(msg)
 }
 ```
+
+channel的功能点：
+1. 队列
+2. 当超过buffer长度时阻塞
+3. 当一端阻塞，可以被另一个端唤醒
+
+我们围绕这3点功能展开，讲讲具体的实现。
 
 ## channel结构
 
