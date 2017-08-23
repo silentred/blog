@@ -209,7 +209,7 @@ type sudog struct {
 }
 ```
 
-讲阻塞部分的时候，我们看到goroutine被调度之前，有一个 `enqueue`操作，这时，当前G的sudog已经被存入`recvq`中，我看下发送者这时的操作。
+讲阻塞部分的时候，我们看到goroutine被调度之前，有一个 `enqueue`操作，这时，当前G的sudog已经被存入`recvq`中，我们看下发送者这时的操作。
 
 这里的操作是，sender发送的值 直接被拷贝到 sudog.elem 了。然后唤醒 sudog.g ，这样对面的receiver goroutine 就被唤醒了。具体请下面的注释。
 
