@@ -182,7 +182,7 @@ TEXT ·hello(SB),$88-0
 `GLOBL` 将数据设为全局，只读，相对位置12.
 
 
-## gid
+# Example: gid
 
 gid 库中用到的函数
 
@@ -207,7 +207,7 @@ TEXT ·getg(SB), NOSPLIT, $0-8
 
 ```
 
-## sync atomic
+# Example: SwapInt32
 
 一个原子交换 int32 的函数
 
