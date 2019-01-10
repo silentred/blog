@@ -13,7 +13,7 @@ comments: false
 
 ## 基本资料
 
-- 生物狗 => 程序狗
-- PHPer 转 Gopher，php是最好的语言，Laravel是最好的php框架
-- TiDB Commiter
+- Former PHPer，Lumen 是最好的 php 框架
+- Gopher
+- TiDB Contributer
 - 关注分布式，基础架构
