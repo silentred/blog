@@ -584,8 +584,8 @@ comments:
 
 # Disqus
 disqus:
-  enable: false
-  shortname:
+  enable: true
+  shortname: silentred
   count: true
   #post_meta_order: 0
 
@@ -679,7 +679,7 @@ google_analytics:
   only_pageview: false
 
 # Baidu Analytics
-baidu_analytics: # <app_id>
+baidu_analytics: 60da753ebe7081997d0ccc26f3001467
 
 # Growingio Analytics
 growingio_analytics: # <project_id>
