@@ -10,7 +10,7 @@ tags:
 - distributed-system
 ---
 
-> 用简单的方式描述 Pexos 协议， 本文来自于对  [xp博客](https://blog.openacid.com/algo/paxos/) 的总结
+> 用简单的方式描述 Pexos 协议， 本文来自于对  [xp博客](https://blog.openacid.com/algo/paxos/) 的搬运，整理和总结
 
 <!-- more -->
 
