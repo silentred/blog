@@ -1,16 +1,16 @@
 ---
-title: 简述Pexos协议
+title: 简述Paxos协议
 date: 2020-11-04 14:40:44
 comments: true
 categories:
 - tech
 tags:
-- pexos
+- paxos
 - raft
 - distributed-system
 ---
 
-> 用简单的方式描述 Pexos 协议， 本文来自于对  [xp博客](https://blog.openacid.com/algo/paxos/) 的搬运，整理和总结
+> 用简单的方式描述 Paxos 协议， 本文来自于对  [xp博客](https://blog.openacid.com/algo/paxos/) 的搬运，整理和总结
 
 <!-- more -->
 
@@ -86,22 +86,22 @@ node-3: a=y₂
 如果它联系到node-2和node-3, 那它得到的结果是a=y₂.
 整个系统对外部提供的信息仍然是不一致的.
 
-# Pexos 的出现
+# Paxos 的出现
 
 待补充
 
-# Pexos 算法描述
+# Paxos 算法描述
 
 解决的问题:
 - 实现一个可靠的基于多数派写的强一致性存储系统
-- 每个 pexos 实例，存储一个值
+- 每个 paxos 实例，存储一个值
 - 用2轮RPC来确定一个值
 - 一个值被确定后，不能修改, 确定指的是被多数派接受写入
 
-Pexos 存在两种变体:
-- Classic Pexos: 一个值写入，需要2轮RPC
+Paxos 存在两种变体:
+- Classic Paxos: 一个值写入，需要2轮RPC
 - Multi Paxos: 一个值写入，大约需要1轮RPC, 第一次RPC做了合并
-- Fast Pexos: 没有冲突，1轮RPC; 有冲突, 2轮RPC
+- Fast Paxos: 没有冲突，1轮RPC; 有冲突, 2轮RPC
 
 paxos算法中解决了如何在不可靠硬件基础上构建一个可靠的分布式系统的方法. 但paxos核心算法中只解决网络延迟/乱序的问题, 它不试图解决存储不可靠和消息错误的问题, 因为这两类问题本质上跟分布式关系不大, 属于数据校验层面的事情.
 
@@ -113,4 +113,61 @@ paxos算法中解决了如何在不可靠硬件基础上构建一个可靠的分
 - Quorum 在99%的场景里都是指多数派, 也就是半数以上的Acceptor.
 - Round 用来标识一次paxos算法实例, 每个round是2次多数派读写: 算法描述里分别用phase-1和phase-2标识. 同时为了简单和明确, 算法中也规定了每个Proposer都必须生成全局单调递增的round, 这样round既能用来区分先后也能用来区分不同的Proposer(客户端).
 
-> 未完待续...
+在存储端(Acceptor)也有几个概念:
+- last_rnd 是Acceptor记住的最后一次进行写前读取的Proposer(客户端)是谁, 以此来决定谁可以在后面真正把一个值写到存储中.
+v 是最后被写入的值.
+- vrnd 跟v是一对, 它记录了在哪个Round中v被写入了.
+
+v和vrnd是用于恢复一次未完成的paxos用的. 一次未完成的paxos算法运行可能留下一些没有达到多数派的值的写入(就像原生的多数派写的脏读的问题), paxos中通过vrnd来决定哪些值是最后写入的, 并决定恢复哪个未完成的paxos运行. 后面我们会通过几个例子来描述vrnd的作用.
+
+## Phase-1
+
+首先是paxos的phase-1, 它相当于之前提到的写前读取过程. 它用来在存储节点(Acceptor)上记录一个标识: 我后面要写入; 并从Acceptor上读出是否有之前未完成的paxos运行. 如果有则尝试恢复它; 如果没有则继续做自己想做的事情.
+
+我们用类似yaml的格式来描述phase-1的请求/应答的格式:
+```
+request:
+    rnd: int
+
+response:
+    last_rnd: int
+    v: "xxx",
+    vrnd: int
+```
+phase-1成后, acceptor应该记录X的rnd=1, 并返回自己之前保存的v和vrnd.
+
+![](phase-1.jpg)
+
+Proposer X收到多数(quorum)个应答, 就认为是可以继续运行的.如果没有联系到多于半数的acceptor, 整个系统就hang住了, 这也是paxos声称的只能运行少于半数的节点失效.
+
+这时Proposer面临2种情况:
+
+所有应答中都没有任何非空的v, 这表示系统之前是干净的, 没有任何值已经被其他paxos客户端完成了写入(因为一个多数派读一定会看到一个多数派写的结果). 这时Proposer X继续将它要写的值在phase-2中真正写入到多于半数的Acceptor中.
+
+如果收到了某个应答包含被写入的v和vrnd, 这时, Proposer X 必须假设有其他客户端(Proposer) 正在运行, 虽然X不知道对方是否已经成功结束, 但任何已经写入的值都不能被修改!, 所以X必须保持原有的值. 于是X将看到的最大vrnd对应的v作为X的phase-2将要写入的值.
+
+这时实际上可以认为X执行了一次(不知是否已经中断的)其他客户端(Proposer)的修复.
+
+![](phase-1-2.jpg)
+
+## Phase-2
+
+在第2阶段phase-2, Proposer X将它选定的值写入到Acceptor中, 这个值可能是它自己要写入的值, 或者是它从某个Acceptor上读到的v(修复).
+
+同样用类似yaml的方式描述请求应答:
+```
+request:
+    v: "xxx",
+    rnd: int
+
+reponse:
+    ok: bool
+```
+
+![](phase-2.jpg)
+
+当然这时(在X收到phase-1应答, 到发送phase-2请求的这段时间), 可能已经有其他Proposer又完成了一个rnd更大的phase-1, 所以这时X不一定能成功运行完phase-2.
+
+Acceptor通过比较phase-2请求中的rnd, 和自己本地记录的rnd, 来确定X是否还有权写入. 如果请求中的rnd和Acceptor本地记录的rnd一样, 那么这次写入就是被允许的, Acceptor将v写入本地, 并将phase-2请求中的rnd记录到本地的vrnd中.
+
+![](phase-2-2.jpg)
